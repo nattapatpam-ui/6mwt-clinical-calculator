@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>6MWT Clinical Recorder</title>
+<style>
+:root{font-family:system-ui,"Noto Sans Thai",sans-serif;color:#14243b;background:#f2f6fb}*{box-sizing:border-box}body{margin:0}header{background:linear-gradient(120deg,#12386b,#176c99);color:white;padding:30px 18px}main{max-width:1100px;margin:24px auto;padding:0 15px}.head{max-width:1100px;margin:auto}h1{margin:0;font-size:clamp(26px,4vw,38px)}h2{font-size:19px;margin:0 0 16px}.sub{opacity:.9}.card{background:white;border:1px solid #dfe8f1;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 5px 20px #17395b0b}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}label{display:block;font-size:13px;font-weight:650}input,select,textarea{width:100%;margin-top:6px;padding:12px;border:1px solid #cdd8e5;border-radius:10px;background:white;color:#14243b;font:inherit;font-size:16px}input:focus,textarea:focus{outline:2px solid #74b9ff}button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:12px 17px;cursor:pointer;background:#1765ad;color:white}button.secondary{background:#e9f1f9;color:#183c5e}button.danger{background:#fff0ed;color:#a73324}.buttons{display:flex;flex-wrap:wrap;gap:10px}.timer{font-size:clamp(48px,9vw,84px);font-weight:800;text-align:center;font-variant-numeric:tabular-nums;color:#155f9f}.status{text-align:center;min-height:27px;color:#45637c}.metric{padding:15px;border:1px solid #dce6f0;background:#f7faff;border-radius:12px}.metric small{display:block;color:#567087}.metric strong{font-size:23px}.notice{background:#fff9e9;border-left:4px solid #e2a73b;padding:13px;border-radius:8px;line-height:1.65;font-size:13px}.pill{display:inline-block;padding:4px 9px;background:#eaf5ff;border-radius:30px;color:#145b98;font-size:12px}.hr-item{border:1px solid #d8e5f2;border-radius:12px;padding:10px}.hr-item.active{border:2px solid #1277cb;background:#eaf5ff}.muted{color:#637b91;font-size:13px}.hidden{display:none!important}a{color:#1165b4}#result{scroll-margin-top:15px}footer{padding:20px 0 40px;color:#637b91;font-size:13px}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #e2eaf2;text-align:left;padding:9px}canvas{width:100%;height:220px} @media(max-width:750px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:15px}}@media(max-width:440px){.grid.two{grid-template-columns:1fr}.buttons button{flex:1}}
+@media print{header,.buttons,#calculate,.no-print{display:none!important}body{background:white}.card{box-shadow:none;break-inside:avoid}}
+</style></head><body>
+<header><div class="head"><h1>6MWT Clinical Recorder</h1><div class="sub">บันทึกการทดสอบเดิน 6 นาที • METs • Estimated VO₂max • Predicted 6MWD</div></div></header>
+<main>
+<section class="card"><h2>01 · ข้อมูลผู้รับการทดสอบ</h2><div class="grid">
+<label>ชื่อ-สกุล<input id="name" placeholder="ชื่อผู้รับการทดสอบ" autocomplete="off"></label>
+<label>วันที่ทดสอบ<input id="date" type="date"></label>
+<label>อายุ (ปี)<input id="age" type="number" min="1" max="120" placeholder="เช่น 65"></label>
+<label>เพศ<select id="sex"><option value="male">ชาย</option><option value="female">หญิง</option></select></label>
+<label>น้ำหนัก (kg)<input id="weight" type="number" min="1" step="0.1" placeholder="60"></label>
+<label>ส่วนสูง (cm)<input id="height" type="number" min="1" step="0.1" placeholder="165"></label>
+<label>กลุ่มที่ใช้ประเมิน VO₂max<select id="population"><option value="healthy">ผู้ใหญ่ทั่วไป (Burr 2011)</option><option value="hf">หัวใจล้มเหลวระยะรุนแรง (Cahalin 1996)</option></select></label>
+<label>ระยะทางทางเดินต่อรอบ (m)<input id="course" type="number" min="1" step="0.1" value="30"></label>
+</div><p class="muted">ข้อมูลทั้งหมดอยู่ภายในเบราว์เซอร์จนกว่าจะสั่งดาวน์โหลด ไม่มีระบบส่งข้อมูลผู้ป่วยไปยังเซิร์ฟเวอร์</p></section>
+<section class="card"><h2>02 · ก่อนทดสอบ</h2><div class="grid">
+<label>HR ก่อนทดสอบ (bpm)<input id="hr0" type="number" min="0"></label>
+<label>SBP (mmHg)<input id="sbp0" type="number" min="0"></label>
+<label>DBP (mmHg)<input id="dbp0" type="number" min="0"></label>
+<label>RPE ก่อนทดสอบ (Borg 6–20)<input id="rpe0" type="number" min="6" max="20"></label>
+<label>SpO₂ ก่อนทดสอบ (%)<input id="spo0" type="number" min="0" max="100"></label>
+</div></section>
+<section class="card"><h2>03 · จับเวลาและบันทึก HR ทุก 1 นาที</h2>
+<div class="timer" id="clock">06:00</div><div class="status" id="status" aria-live="polite">พร้อมเริ่มการทดสอบ</div>
+<div class="buttons" style="justify-content:center;margin:16px 0 24px"><button id="start" type="button">เริ่ม / ดำเนินต่อ</button><button id="pause" class="secondary" type="button">พัก</button><button id="reset" class="danger" type="button">รีเซ็ตเวลา</button></div>
+<div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+<label class="hr-item" id="box1">HR นาที 1<input id="hr1" type="number" min="0" placeholder="bpm"></label>
+<label class="hr-item" id="box2">HR นาที 2<input id="hr2" type="number" min="0" placeholder="bpm"></label>
+<label class="hr-item" id="box3">HR นาที 3<input id="hr3" type="number" min="0" placeholder="bpm"></label>
+<label class="hr-item" id="box4">HR นาที 4<input id="hr4" type="number" min="0" placeholder="bpm"></label>
+<label class="hr-item" id="box5">HR นาที 5<input id="hr5" type="number" min="0" placeholder="bpm"></label>
+<label class="hr-item" id="box6">HR นาที 6<input id="hr6" type="number" min="0" placeholder="bpm"></label>
+</div><p class="muted">มีการแจ้งเตือนเมื่อครบแต่ละนาทีโดยไม่หยุดเวลา หากใช้มือถือควรเปิดหน้าจอไว้ระหว่างทดสอบ</p>
+<h2 style="margin-top:24px">ระยะทาง</h2><div class="grid">
+<label>จำนวนรอบเต็ม<input id="laps" type="number" min="0" step="1" value="0"></label>
+<label>ระยะทางเพิ่มเติม (m)<input id="extra" type="number" min="0" step="0.1" value="0"></label>
+<label>ระยะทางรวม (m)<input id="distance" type="number" min="0" step="0.1" placeholder="คำนวณจากรอบ หรือกรอกเอง"></label>
+</div><div class="buttons" style="margin-top:12px"><button type="button" class="secondary" id="addlap">+ เพิ่ม 1 รอบ</button><button type="button" class="secondary" id="distanceFromLaps">คำนวณระยะทางจากรอบ</button></div>
+</section>
+<section class="card"><h2>04 · หลังทดสอบ และหลัง Recovery</h2><div class="grid">
+<label>HR หลังทดสอบ (bpm)<input id="hrPost" type="number" min="0"></label>
+<label>SBP หลังทดสอบ<input id="sbpPost" type="number" min="0"></label>
+<label>DBP หลังทดสอบ<input id="dbpPost" type="number" min="0"></label>
+<label>RPE หลังทดสอบ (6–20)<input id="rpePost" type="number" min="6" max="20"></label>
+<label>SpO₂ หลังทดสอบ (%)<input id="spoPost" type="number" min="0" max="100"></label>
+<label>HR หลัง Recovery (bpm)<input id="hrRec" type="number" min="0"></label>
+<label>SBP หลัง Recovery<input id="sbpRec" type="number" min="0"></label>
+<label>DBP หลัง Recovery<input id="dbpRec" type="number" min="0"></label>
+<label>RPE หลัง Recovery (6–20)<input id="rpeRec" type="number" min="6" max="20"></label>
+<label>SpO₂ หลัง Recovery (%)<input id="spoRec" type="number" min="0" max="100"></label>
+<label>ระยะเวลา Recovery (นาที)<input id="recoveryTime" type="number" min="0" step="0.5" value="1"></label>
+</div><label style="margin-top:16px">หมายเหตุ / อาการ / การหยุดพัก<textarea id="notes" rows="3" placeholder="เช่น ใช้ walker, พักระหว่างเดิน, อาการเหนื่อย..."></textarea></label>
+</section>
+<section class="card"><div class="buttons"><button id="calculate" type="button">คำนวณและแสดงผล</button><button id="csv" class="secondary" type="button">ดาวน์โหลด CSV</button><button id="print" class="secondary" type="button">พิมพ์ / บันทึก PDF</button></div><p id="error" style="color:#b72e2e" role="alert"></p></section>
+<section class="card hidden" id="result"><h2>05 · ผลการทดสอบ</h2><div id="metrics" class="grid"></div>
+<div class="notice" style="margin-top:18px" id="interpret"></div>
+<h2 style="margin-top:22px">Heart rate response</h2><canvas id="graph" width="960" height="260" aria-label="กราฟ heart rate"></canvas><div id="summary"></div>
+</section>
+<section class="card"><h2>เอกสารอ้างอิงและข้อจำกัด</h2>
+<p><b>ระยะทางที่คาดการณ์:</b> Enright & Sherrill (1998) จากผู้ใหญ่สุขภาพดีอายุ 40–80 ปี สมการแยกตามเพศ อายุ น้ำหนัก และส่วนสูง ไม่ใช่เกณฑ์ตายตัวของแต่ละช่วงอายุ <a href="https://pubmed.ncbi.nlm.nih.gov/9817683/" target="_blank" rel="noopener">PubMed</a></p>
+<p><b>Estimated VO₂max:</b> Burr et al. (2011) สมการสำหรับผู้ใหญ่สุขภาพดีวัยกลางคน (ใช้ 6MWD น้ำหนัก เพศ resting HR และอายุ) หรือ Cahalin et al. (1996) สำหรับผู้ป่วย advanced heart failure เท่านั้น ดูตารางสมการใน <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12473405/" target="_blank" rel="noopener">review ปี 2025</a> และ <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7835615/" target="_blank" rel="noopener">Deka et al. (2021)</a></p>
+<p><b>Estimated walking METs:</b> ใช้ ACSM level-walking equation: VO₂ ≈ 0.1 × ความเร็ว (m/min) + 3.5 และ METs = VO₂/3.5 โดยสมมติทางราบและความเร็วคงที่ ไม่ใช่การวัด metabolic cost โดยตรง</p>
+<div class="notice">ผลทำนายไม่ใช่การวินิจฉัย และไม่ควรใช้แทน CPET หรือการประเมินความปลอดภัยก่อน/ระหว่าง 6MWT ค่า VO₂max จากสมการอาจคลาดเคลื่อนมากเมื่อใช้กับประชากรนอกกลุ่มที่ศึกษา RPE ใช้ Borg 6–20 ตลอดทุกช่วง ข้อมูลที่กรอกจะไม่ถูกบันทึกถาวรอัตโนมัติ</div></section>
+<footer>6MWT Clinical Recorder • Static single-page HTML • No patient data sent to GitHub</footer>
+</main><script>
+(()=>{
+const $=id=>document.getElementById(id),n=id=>{const s=$(id).value.trim();if(s==='')return null;const v=Number(s);return Number.isFinite(v)?v:null},fmt=(v,d=1)=>v===null||!Number.isFinite(v)?'—':v.toFixed(d);
+$('date').value=new Date().toLocaleDateString('en-CA');
+let elapsed=0,tick=null,startedAt=0;
+function clock(){const rem=360-elapsed;$('clock').textContent=String(Math.floor(rem/60)).padStart(2,'0')+':'+String(rem%60).padStart(2,'0')}
+function mark(min){for(let i=1;i<=6;i++)$('box'+i).classList.toggle('active',i===min);$('status').textContent='ครบ '+min+' นาที — บันทึก HR';if(navigator.vibrate)navigator.vibrate(160)}
+function stop(){if(tick){clearInterval(tick);tick=null}}
+function update(){const next=Math.min(360,Math.floor((Date.now()-startedAt)/1000));if(next<=elapsed)return;for(let s=elapsed+1;s<=next;s++)if(s%60===0)mark(s/60);elapsed=next;clock();if(elapsed>=360){stop();$('status').textContent='ครบ 6 นาที — บันทึกผลหลังทดสอบ'}}
+$('start').onclick=()=>{if(tick||elapsed>=360)return;startedAt=Date.now()-elapsed*1000;tick=setInterval(update,250);$('status').textContent='กำลังทดสอบ'};
+$('pause').onclick=()=>{update();stop();if(elapsed<360)$('status').textContent='พักการจับเวลา'};
+$('reset').onclick=()=>{stop();elapsed=0;clock();$('status').textContent='พร้อมเริ่มการทดสอบ';for(let i=1;i<=6;i++)$('box'+i).classList.remove('active')};
+$('addlap').onclick=()=>{$('laps').value=(n('laps')||0)+1};
+$('distanceFromLaps').onclick=()=>{const v=(n('laps')||0)*(n('course')||0)+(n('extra')||0);$('distance').value=v.toFixed(1)};
+const fields=['name','date','age','sex','weight','height','population','course','hr0','sbp0','dbp0','rpe0','spo0','hr1','hr2','hr3','hr4','hr5','hr6','laps','extra','distance','hrPost','sbpPost','dbpPost','rpePost','spoPost','hrRec','sbpRec','dbpRec','rpeRec','spoRec','recoveryTime','notes'];
+function compute(){const age=n('age'),w=n('weight'),h=n('height'),d=n('distance'),hr=n('hr0'),sex=$('sex').value;
+if(!(age>0&&w>0&&h>0&&d>=0)){throw Error('กรุณากรอกอายุ น้ำหนัก ส่วนสูง และระยะทางรวมให้ครบ (ระยะทาง 0 ได้ หากทดสอบไม่สำเร็จ)')}
+const bmi=w/((h/100)**2),speed=d/6,walkVO2=.1*speed+3.5,mets=walkVO2/3.5;
+let pred=null,pct=null;if(age>=40&&age<=80){pred=sex==='male'?7.57*h-5.02*age-1.76*w-309:2.11*h-2.29*w-5.78*age+667;if(pred<=0)pred=null;else pct=d/pred*100}
+let vo2=null,formula='';if($('population').value==='healthy'){formula='Burr 2011 (healthy middle-aged adults)';if(hr!==null)vo2=70.161+.023*d-.276*w-(sex==='female'?6.79:0)-.193*hr-.191*age}else{formula='Cahalin 1996 (advanced heart failure)';vo2=.03*d+3.98}
+return {age,w,h,d,bmi,speed,walkVO2,mets,pred,pct,vo2:vo2!==null&&vo2>0?vo2:null,formula,hrR:n('hrPost')!==null&&n('hrRec')!==null?n('hrPost')-n('hrRec'):null}}
+function plot(){const c=$('graph'),ctx=c.getContext('2d'),vals=['hr0','hr1','hr2','hr3','hr4','hr5','hr6','hrPost','hrRec'].map(n);ctx.clearRect(0,0,c.width,c.height);const present=vals.filter(v=>v!==null);if(present.length<2){ctx.fillStyle='#45637c';ctx.font='20px sans-serif';ctx.fillText('กรอก HR อย่างน้อย 2 จุดเพื่อแสดงกราฟ',25,40);return}const min=Math.max(0,Math.min(...present)-15),max=Math.max(...present)+15,px=i=>55+i*(c.width-100)/8,py=v=>c.height-42-(v-min)/(max-min)*(c.height-75);ctx.strokeStyle='#ccd8e7';ctx.beginPath();ctx.moveTo(45,18);ctx.lineTo(45,c.height-42);ctx.lineTo(c.width-20,c.height-42);ctx.stroke();ctx.strokeStyle='#1974b9';ctx.lineWidth=3;ctx.beginPath();let previous=false;vals.forEach((v,i)=>{if(v===null){previous=false;return}if(previous)ctx.lineTo(px(i),py(v));else ctx.moveTo(px(i),py(v));previous=true});ctx.stroke();ctx.font='14px sans-serif';ctx.fillStyle='#183c5e';const labels=['Pre','1','2','3','4','5','6','Post','Rec'];vals.forEach((v,i)=>{ctx.fillText(labels[i],px(i)-12,c.height-15);if(v!==null){ctx.beginPath();ctx.arc(px(i),py(v),5,0,Math.PI*2);ctx.fill();ctx.fillText(String(v),px(i)-11,py(v)-11)}})}
+$('calculate').onclick=()=>{try{const a=compute();$('error').textContent='';const cards=[['6MWD',fmt(a.d,1)+' m'],['Predicted 6MWD',fmt(a.pred,1)+' m'],['% predicted',fmt(a.pct)+' %'],['BMI',fmt(a.bmi)+' kg/m²'],['Speed',fmt(a.speed)+' m/min'],['Estimated walking METs',fmt(a.mets,2)+' METs'],['Estimated walking VO₂',fmt(a.walkVO2,2)+' mL/kg/min'],['Estimated VO₂max',fmt(a.vo2,2)+' mL/kg/min'],['HR recovery Δ',fmt(a.hrR,0)+' bpm']];$('metrics').innerHTML=cards.map(([k,v])=>'<div class="metric"><small>'+k+'</small><strong>'+v+'</strong></div>').join('');$('interpret').textContent=(a.pred===null?'ไม่มี predicted 6MWD: สมการ Enright ใช้สำหรับอายุ 40–80 ปีเท่านั้น. ':'Predicted 6MWD จาก Enright & Sherrill 1998 (healthy adults 40–80). ')+(a.vo2===null?'ไม่สามารถคำนวณ VO₂max ตามสมการที่เลือกได้: กรุณากรอก resting HR หากใช้ Burr. ':'Estimated VO₂max ใช้ '+a.formula+'; ไม่ใช่ค่า CPET. ')+(a.speed<50||a.speed>100?'ความเร็วเฉลี่ยอยู่นอกช่วงการเดินที่สมการ ACSM เหมาะสมเป็นหลัก จึงต้องระวังการตีความ METs. ':'')+'การเปรียบเทียบระยะทางต้องพิจารณาประชากรและวิธีทดสอบร่วมด้วย';const names=['ก่อน','นาที 1','นาที 2','นาที 3','นาที 4','นาที 5','นาที 6','หลัง','Recovery'],ids=['hr0','hr1','hr2','hr3','hr4','hr5','hr6','hrPost','hrRec'];$('summary').innerHTML='<table><thead><tr><th>ช่วง</th><th>HR (bpm)</th></tr></thead><tbody>'+ids.map((id,i)=>'<tr><td>'+names[i]+'</td><td>'+fmt(n(id),0)+'</td></tr>').join('')+'</tbody></table>';$('result').classList.remove('hidden');plot();$('result').scrollIntoView({behavior:'smooth',block:'start'})}catch(e){$('error').textContent=e.message}};
+$('csv').onclick=()=>{const lines=[['field','value'],...fields.map(id=>[id,$(id).value])];const csv='\ufeff'+lines.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='6mwt-'+($('date').value||'record')+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+$('print').onclick=()=>window.print();clock();
+})();
+</script></body></html>
