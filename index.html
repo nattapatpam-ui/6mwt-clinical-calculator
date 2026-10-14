@@ -46,19 +46,29 @@
 <label>ระยะทางรวม (m)<input id="distance" type="number" min="0" step="0.1" placeholder="คำนวณจากรอบ หรือกรอกเอง"></label>
 </div><div class="buttons" style="margin-top:12px"><button type="button" class="secondary" id="addlap">+ เพิ่ม 1 รอบ</button><button type="button" class="secondary" id="distanceFromLaps">คำนวณระยะทางจากรอบ</button></div>
 </section>
-<section class="card"><h2>04 · หลังทดสอบ และหลัง Recovery</h2><div class="grid">
-<label>HR หลังทดสอบ (bpm)<input id="hrPost" type="number" min="0"></label>
-<label>SBP หลังทดสอบ<input id="sbpPost" type="number" min="0"></label>
-<label>DBP หลังทดสอบ<input id="dbpPost" type="number" min="0"></label>
+<section class="card"><h2>04 · บันทึกสัญญาณชีพหลังการทดสอบ</h2>
+<div style="background:#edf6ff;border:1px solid #b9daf5;border-radius:14px;padding:18px;margin-bottom:18px">
+<h2 style="color:#12568d;margin-bottom:5px">A · หลังทดสอบทันที (Immediately post-test)</h2>
+<p class="muted" style="margin-top:0">บันทึกทันทีเมื่อครบ 6 นาทีหรือหยุดการทดสอบ ก่อนเข้าสู่ช่วงพักฟื้น</p>
+<div class="grid">
+<label>HR หลังทดสอบทันที (bpm)<input id="hrPost" type="number" min="0"></label>
+<label>SBP หลังทดสอบ (mmHg)<input id="sbpPost" type="number" min="0"></label>
+<label>DBP หลังทดสอบ (mmHg)<input id="dbpPost" type="number" min="0"></label>
 <label>RPE หลังทดสอบ (6–20)<input id="rpePost" type="number" min="6" max="20"></label>
 <label>SpO₂ หลังทดสอบ (%)<input id="spoPost" type="number" min="0" max="100"></label>
+</div></div>
+<div style="background:#f0faf5;border:1px solid #b6dfc9;border-radius:14px;padding:18px">
+<h2 style="color:#176545;margin-bottom:5px">B · หลังพักฟื้น (Recovery)</h2>
+<p class="muted" style="margin-top:0">บันทึกเมื่อครบระยะเวลาพักฟื้นที่กำหนด พร้อมระบุเวลาจริง เพื่อให้เปรียบเทียบผลได้ถูกต้อง</p>
+<div class="grid">
+<label>ระยะเวลา Recovery (นาที)<input id="recoveryTime" type="number" min="0" step="0.5" value="1"></label>
 <label>HR หลัง Recovery (bpm)<input id="hrRec" type="number" min="0"></label>
-<label>SBP หลัง Recovery<input id="sbpRec" type="number" min="0"></label>
-<label>DBP หลัง Recovery<input id="dbpRec" type="number" min="0"></label>
+<label>SBP หลัง Recovery (mmHg)<input id="sbpRec" type="number" min="0"></label>
+<label>DBP หลัง Recovery (mmHg)<input id="dbpRec" type="number" min="0"></label>
 <label>RPE หลัง Recovery (6–20)<input id="rpeRec" type="number" min="6" max="20"></label>
 <label>SpO₂ หลัง Recovery (%)<input id="spoRec" type="number" min="0" max="100"></label>
-<label>ระยะเวลา Recovery (นาที)<input id="recoveryTime" type="number" min="0" step="0.5" value="1"></label>
-</div><label style="margin-top:16px">หมายเหตุ / อาการ / การหยุดพัก<textarea id="notes" rows="3" placeholder="เช่น ใช้ walker, พักระหว่างเดิน, อาการเหนื่อย..."></textarea></label>
+</div></div>
+<label style="margin-top:18px">หมายเหตุ / อาการ / การหยุดพัก<textarea id="notes" rows="3" placeholder="เช่น ใช้ walker, พักระหว่างเดิน, อาการเหนื่อย..."></textarea></label>
 </section>
 <section class="card"><div class="buttons"><button id="calculate" type="button">คำนวณและแสดงผล</button><button id="csv" class="secondary" type="button">ดาวน์โหลด CSV</button><button id="print" class="secondary" type="button">พิมพ์ / บันทึก PDF</button></div><p id="error" style="color:#b72e2e" role="alert"></p></section>
 <section class="card hidden" id="result"><h2>05 · ผลการทดสอบ</h2><div id="metrics" class="grid"></div>
